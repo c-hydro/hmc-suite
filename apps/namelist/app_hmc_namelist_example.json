@@ -1,0 +1,70 @@
+{
+  "__comment__" : "configuration file for the hmc namelist",
+  "namelist": {
+    "flags": {
+      "clean_data": false
+    },
+    "variables": {
+      "environment": {
+        "lut": {
+          "domain_name": "DOMAIN_NAME",
+          "path_source" : "PATH_SRC",
+          "path_destination" : "PATH_DST",
+          "time_now" : "TIME_NOW",
+          "time_period" : "TIME_PERIOD"
+        },
+        "format": {
+          "domain_name": "string",
+          "path_source": "string",
+          "path_destination": "string",
+          "time_now": "timestamp",
+          "time_period": "int"
+        },
+        "template": {
+          "domain_name": "string",
+          "path_source": "string",
+          "path_destination": "string",
+          "time_now": "%Y%m%d%H00",
+          "time_period": "string"
+        }
+      },
+      "hmc" : {
+        "sDomainName": "{domain_name}",
+        "sPathData_Static_Point": ".{path_source}/{domain_name}/",
+        "sPathData_State_Point" : "./data/static/point/",
+        "sPathData_Static_Gridded" : "./data/static/point/",
+        "sPathData_State_Gridded" : "./data/static/point/{domain_name}/",
+        "sPathData_Outcome_Point" : "./data/static/point/{domain_name}/%YYYY/%DD/%MM/",
+        "sTimeStart": "{time_now}",
+        "sSimLength": "{time_period}",
+        "iTVeg": 800
+      }
+    },
+    "data": {
+      "source": {
+        "folder_name": "",
+        "file_name": "hmc.template.info.v3.1.6.txt"
+      },
+      "destination": {
+        "folder_name": "./data/namelist/",
+        "file_name": "marche.info.txt"
+      }
+    }
+  },
+  "time": {
+    "time_now": null,
+    "time_period": 12,
+    "time_start": null,
+    "time_end": null,
+    "time_rounding": "H",
+    "time_frequency": "H"
+  },
+  "log": {
+    "folder_name": "log",
+    "file_name": "hmc_namelist.log"
+  },
+  "tmp": {
+    "folder_name": "tmp",
+    "file_name": "hmc_namelist.tmp"
+  }
+}
