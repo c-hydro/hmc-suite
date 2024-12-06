@@ -8,8 +8,14 @@ Version:       '4.0.0'
 """
 
 # ----------------------------------------------------------------------------------------------------------------------
+# libraries
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 # namelist type and default values
-type_namelist_default = dict(
+type_namelist_default_hmc = dict(
 
     HMC_Parameters={
         'dUc': 'default',
@@ -192,7 +198,7 @@ type_namelist_default = dict(
     },
 )
 # Namelist constants
-structure_namelist_default = dict(
+structure_namelist_default_hmc = dict(
 
     HMC_Parameters={
         'dUc': 20,

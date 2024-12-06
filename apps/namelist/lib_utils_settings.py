@@ -16,7 +16,7 @@ import logging
 
 # ----------------------------------------------------------------------------------------------------------------------
 # method to get data settings
-def get_data_settings(file_name, key_reference='namelist'):
+def get_data_settings(file_name: str, key_reference: str = 'namelist'):
     if os.path.exists(file_name):
         with open(file_name) as file_handle:
             data_settings = json.load(file_handle)

@@ -1,6 +1,8 @@
 {
   "__comment__" : "configuration file for the hmc namelist",
   "namelist": {
+    "type": "hmc",
+    "version": "3.2.0",
     "flags": {
       "clean_data": false
     },
@@ -29,15 +31,23 @@
         }
       },
       "hmc" : {
-        "sDomainName": "{domain_name}",
-        "sPathData_Static_Point": ".{path_source}/{domain_name}/",
-        "sPathData_State_Point" : "./data/static/point/",
-        "sPathData_Static_Gridded" : "./data/static/point/",
-        "sPathData_State_Gridded" : "./data/static/point/{domain_name}/",
-        "sPathData_Outcome_Point" : "./data/static/point/{domain_name}/%YYYY/%DD/%MM/",
-        "sTimeStart": "{time_now}",
-        "sSimLength": "{time_period}",
-        "iTVeg": 800
+        "complete_by_info": {
+          "sDomainName": "{domain_name}",
+          "sPathData_Static_Point": ".{path_source}/{domain_name}/",
+          "sPathData_State_Point": "./data/static/point/",
+          "sPathData_Static_Gridded": "./data/static/point/",
+          "sPathData_State_Gridded": "./data/static/point/{domain_name}/",
+          "sPathData_Outcome_Point": "./data/static/point/{domain_name}/%YYYY/%DD/%MM/",
+          "sTimeStart": "{time_now}",
+          "sSimLength": "{time_period}",
+          "iTVeg": 800
+        },
+        "complete_by_pattern": {
+          "pattern_dt": {
+            "active": true, "template": "iDt", "value": 3600},
+          "pattern_path_data": {
+            "active": true, "template": "sPathData", "value": "/"}
+        }
       }
     },
     "data": {

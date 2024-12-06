@@ -20,12 +20,10 @@ Version(s):
 # ----------------------------------------------------------------------------------------------------------------------
 # libraries
 import logging
-import os
 import time
-
-from copy import deepcopy
 import argparse
 
+from lib_utils_logging import set_logging_stream
 from lib_utils_time import select_time_information
 
 from lib_default_args import logger_name, logger_format, time_format_algorithm
@@ -58,9 +56,10 @@ def main():
     # read data settings
     alg_data_settings = get_data_settings(alg_file_settings, key_reference='namelist')
     # set logging
-    set_logging(logger_name=logger_name, logger_format=logger_format,
-                logger_folder=alg_data_settings['log']['folder_name'],
-                logger_file=alg_data_settings['log']['file_name'])
+    set_logging_stream(
+        logger_name=logger_name, logger_format=logger_format,
+        logger_folder=alg_data_settings['log']['folder_name'],
+        logger_file=alg_data_settings['log']['file_name'])
     # ------------------------------------------------------------------------------------------------------------------
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -86,6 +85,8 @@ def main():
     # ------------------------------------------------------------------------------------------------------------------
     # driver environment variables
     driver_hmc_variables = DrvVariables(
+        namelist_version=alg_data_settings['version'],
+        namelist_type=alg_data_settings['type'],
         obj_variables_env=alg_data_settings['variables']['environment'],
         obj_variables_hmc=alg_data_settings['variables']['hmc'])
     # organize environment variables information
@@ -97,8 +98,13 @@ def main():
     # ------------------------------------------------------------------------------------------------------------------
     # driver namelist variable(s)
     driver_namelist = DrvNamelist(
+        namelist_version=alg_data_settings['version'],
+        namelist_type=alg_data_settings['type'],
         obj_variables_data=alg_data_settings['data'],
-        obj_variables_user=alg_variables_user, obj_time=alg_time)
+        obj_variables_user=alg_variables_user,
+        obj_variables_hmc=alg_data_settings['variables']['hmc'],
+        obj_time=alg_time,
+        flag_clean_data=alg_data_settings['flags']['clean_data'])
     # get namelist object
     alg_variables_default = driver_namelist.get_namelist_obj()
     # fill namelist variable(s)
@@ -116,7 +122,7 @@ def main():
     alg_logger.info(' ')
     alg_logger.info(' ==> ' + alg_name + ' (Version: ' + alg_version + ' Release_Date: ' + alg_release + ')')
     alg_logger.info(' ==> TIME ELAPSED: ' + str(alg_time_elapsed) + ' seconds')
-    alg_logger.info(' ==> ... END')
+     alg_logger.info(' ==> ... END')
     alg_logger.info(' ==> Bye, Bye')
     alg_logger.info(' ============================================================================ ')
     # ------------------------------------------------------------------------------------------------------------------
@@ -142,60 +148,6 @@ def get_args():
         settings_time = parser_value.settings_time
 
     return settings_file, settings_time
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-# method to set logging information
-def set_logging(logger_name='algorithm_logger', logger_folder=None, logger_file='log.txt', logger_format=None):
-
-    if logger_format is None:
-        logger_format = deepcopy(logger_format)
-    if logger_file is None:
-        logger_file = deepcopy(logger_file)
-
-    if logger_folder is not None:
-        logger_path = os.path.join(logger_folder, logger_file)
-    else:
-        logger_path = deepcopy(logger_file)
-
-    logger_loc = os.path.split(logger_path)
-    if logger_loc[0] == '' or logger_loc[0] == "":
-        logger_folder_name, logger_file_name = os.path.dirname(os.path.abspath(sys.argv[0])), logger_loc[1]
-    else:
-        logger_folder_name, logger_file_name = logger_loc[0], logger_loc[1];
-
-    os.makedirs(logger_folder_name, exist_ok=True)
-
-    # define logger path
-    logger_path = os.path.join(logger_folder_name, logger_file_name)
-
-    # Remove old logging file
-    if os.path.exists(logger_path):
-        os.remove(logger_path)
-
-    # Open logger
-    logging.getLogger(logger_name)
-    logging.root.setLevel(logging.DEBUG)
-
-    # Open logging basic configuration
-    logging.basicConfig(level=logging.DEBUG, format=logger_format, filename=logger_path, filemode='w')
-
-    # Set logger handle
-    logger_handle_1 = logging.FileHandler(logger_path, 'w')
-    logger_handle_2 = logging.StreamHandler()
-    # Set logger level
-    logger_handle_1.setLevel(logging.DEBUG)
-    logger_handle_2.setLevel(logging.DEBUG)
-    # Set logger formatter
-    logger_formatter = logging.Formatter(logger_format)
-    logger_handle_1.setFormatter(logger_formatter)
-    logger_handle_2.setFormatter(logger_formatter)
-
-    # Add handle to logging
-    logging.getLogger('').addHandler(logger_handle_1)
-    logging.getLogger('').addHandler(logger_handle_2)
 
 # ----------------------------------------------------------------------------------------------------------------------
 

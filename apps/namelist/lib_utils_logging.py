@@ -7,108 +7,116 @@ Date:          '20241202'
 Version:       '4.0.0'
 """
 
-#######################################################################################
-# Library
+# ----------------------------------------------------------------------------------------------------------------------
+# libraries
 import logging
+import os
+import sys
 import logging.config
 import glob
 
-from os.path import exists, split, join
-from os import remove, rename
+from copy import deepcopy
 
-from hmc.algorithm.default.lib_default_args import logger_name as logger_name_default
-from hmc.algorithm.default.lib_default_args import logger_file as logger_file_default
-from hmc.algorithm.default.lib_default_args import logger_handle as logger_handle_default
-from hmc.algorithm.default.lib_default_args import logger_format as logger_format_default
+from lib_default_args import logger_name as logger_name_default
+from lib_default_args import logger_file as logger_file_default
+# from lib_default_args import logger_handle as logger_handle_default
+from lib_default_args import logger_format as logger_format_default
 
-# Debug
+# debugging
 # import matplotlib.pylab as plt
-#######################################################################################
+# ----------------------------------------------------------------------------------------------------------------------
 
 
-# -------------------------------------------------------------------------------------
-# Method to set logging stream
-def set_logging_stream(sLoggerFile=logger_file_default, sLoggerName=logger_name_default,
-                       sLoggerHandle=logger_handle_default, sLoggerFormatter=logger_format_default,
-                   bLoggerHistory=False, iLoggerHistory=12):
+# ----------------------------------------------------------------------------------------------------------------------
+# method to set logging stream
+def set_logging_stream(logger_name: str = logger_name_default,
+                       logger_folder: str = None,
+                       logger_file: str = logger_file_default, logger_format: str = logger_format_default,
+                       logger_history_flag: bool = False, logger_history_count: int = 4) -> None:
+
+    if logger_format is None:
+        logger_format = deepcopy(logger_format)
+    if logger_file is None:
+        logger_file = deepcopy(logger_file)
+
+    if logger_folder is not None:
+        logger_path = os.path.join(logger_folder, logger_file)
+    else:
+        logger_path = deepcopy(logger_file)
 
     # Save old logger file (to check run in the past)
-    if bLoggerHistory:
-        save_logging_history(sLoggerFile, iLoggerMax=iLoggerHistory)
+    if logger_history_flag:
+        save_logging_stream(logger_path, logger_count_max=logger_history_count)
+
+    # remove logging file
+    if os.path.exists(logger_path):
+        os.remove(logger_path)
+
+    logger_loc = os.path.split(logger_path)
+    if logger_loc[0] == '' or logger_loc[0] == "":
+        logger_folder_name, logger_file_name = os.path.dirname(os.path.abspath(sys.argv[0])), logger_loc[1]
+    else:
+        logger_folder_name, logger_file_name = logger_loc[0], logger_loc[1]
+
+    os.makedirs(logger_folder_name, exist_ok=True)
+
+    # define logger path
+    logger_path = os.path.join(logger_folder_name, logger_file_name)
 
     # Remove old logging file
-    if exists(sLoggerFile):
-        remove(sLoggerFile)
+    if os.path.exists(logger_path):
+        os.remove(logger_path)
 
     # Open logger
-    oLoggerStream = logging.getLogger(sLoggerName)
-    oLoggerStream.setLevel(logging.DEBUG)
+    logging.getLogger(logger_name)
+    logging.root.setLevel(logging.DEBUG)
+
+    # Open logging basic configuration
+    logging.basicConfig(level=logging.DEBUG, format=logger_format, filename=logger_path, filemode='w')
 
     # Set logger handle
-    if sLoggerHandle == 'file':
-        oLogHandle_1 = logging.FileHandler(sLoggerFile, 'w')
-        oLogHandle_2 = logging.StreamHandler()
+    logger_handle_1 = logging.FileHandler(logger_path, 'w')
+    logger_handle_2 = logging.StreamHandler()
+    # Set logger level
+    logger_handle_1.setLevel(logging.DEBUG)
+    logger_handle_2.setLevel(logging.DEBUG)
+    # Set logger formatter
+    logger_formatter = logging.Formatter(logger_format)
+    logger_handle_1.setFormatter(logger_formatter)
+    logger_handle_2.setFormatter(logger_formatter)
 
-        # Set logger level
-        oLogHandle_1.setLevel(logging.DEBUG)
-        oLogHandle_2.setLevel(logging.DEBUG)
+    # Add handle to logging
+    logging.getLogger('').addHandler(logger_handle_1)
+    logging.getLogger('').addHandler(logger_handle_2)
 
-        # Set logger formatter
-        oLogFormatter = logging.Formatter(sLoggerFormatter)
-        oLogHandle_1.setFormatter(oLogFormatter)
-        oLogHandle_2.setFormatter(oLogFormatter)
-
-        # Add handle to logger
-        oLoggerStream.addHandler(oLogHandle_1)
-        oLoggerStream.addHandler(oLogHandle_2)
-
-    elif sLoggerHandle == 'stream':
-        oLogHandle = logging.StreamHandler()
-
-        # Set logger level
-        oLogHandle.setLevel(logging.DEBUG)
-
-        # Set logger formatter
-        oLogFormatter = logging.Formatter(sLoggerFormatter)
-        oLogHandle.setFormatter(oLogFormatter)
-
-        # Add handle to logger
-        oLoggerStream.addHandler(oLogHandle)
-
-    else:
-
-        oLogHandle = logging.NullHandler()
-        # Add handle to logger
-        oLoggerStream.addHandler(oLogHandle)
-
-    # Return logger stream
-    return oLoggerStream
-
-# -------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 
-# -------------------------------------------------------------------------------------
-# Method to save logging file (to save execution history)
-def save_logging_history(sLoggerFile, sLoggerExt='.old.{}', iLoggerMax=12):
-    # Get logger folder
-    sLoggerFolder = split(sLoggerFile)[0]
-    # Iterate to store old logging file
-    if exists(sLoggerFile):
-        sLoggerFile_LOOP = sLoggerFile
-        iLoggerID = 0
-        while exists(sLoggerFile_LOOP):
-            iLoggerID = iLoggerID + 1
-            sLoggerFile_LOOP = sLoggerFile + sLoggerExt.format(iLoggerID)
+# ----------------------------------------------------------------------------------------------------------------------
+# method to save logging stream (history of logging files)
+def save_logging_stream(logger_file: str, logger_suffix: str = '.old.{}', logger_count_max: int = 12) -> None:
 
-            if iLoggerID > iLoggerMax:
-                oLoggerOld = glob.glob(join(sLoggerFolder, '*'))
-                for sLoggerOld in oLoggerOld:
-                    if sLoggerOld.startswith(sLoggerFile):
-                        remove(sLoggerOld)
-                sLoggerFile_LOOP = sLoggerFile
+    # get folder name
+    folder_name, _ = os.path.split(logger_file)
+
+    # iterate to store old logging files
+    if os.path.exists(logger_file):
+
+        loop_file = deepcopy(logger_file)
+        loop_count_id = 0
+        while os.path.exists(loop_file):
+            loop_count_id += 1
+            loop_file = logger_file + logger_suffix.format(loop_count_id)
+
+            if loop_count_id > logger_count_max:
+                logger_file_list = glob.glob(os.path.join(folder_name, '*'))
+                for logger_file_old in logger_file_list:
+                    if logger_file_old.startswith(logger_file):
+                        os.remove(logger_file_old)
+                loop_file = logger_file
                 break
 
-        if sLoggerFile_LOOP:
-            if sLoggerFile != sLoggerFile_LOOP:
-                rename(sLoggerFile, sLoggerFile_LOOP)
-# -------------------------------------------------------------------------------------
+        if loop_file:
+            if logger_file != loop_file:
+                os.rename(logger_file, loop_file)
+# ----------------------------------------------------------------------------------------------------------------------

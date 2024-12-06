@@ -66,6 +66,14 @@ def create_dict_from_list(list_obj, value_list=None, value_default='string'):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
+# method to convert list to string (given the delimiter)
+def convert_list2string(list_data: list, list_delimiter: str = ',') -> str:
+    string_data = list_delimiter.join(str(elem) for elem in list_data)
+    return string_data
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 # method to add format(s) string (path or filename)
 def fill_tags2string(string_raw, tags_format=None, tags_filling=None, tags_template='[TMPL_TAG_{:}]'):
 

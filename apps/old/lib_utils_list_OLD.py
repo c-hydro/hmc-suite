@@ -53,12 +53,7 @@ def convert_list_2_dict(var_list):
 # -------------------------------------------------------------------------------------
 
 
-# -------------------------------------------------------------------------------------
-# Method to convert list to string (given an delimiter)
-def convert_list_2_string(list_data, list_delimiter=','):
-    string_data = list_delimiter.join(str(elem) for elem in list_data)
-    return string_data
-# -------------------------------------------------------------------------------------
+
 
 
 # -------------------------------------------------------------------------------------
