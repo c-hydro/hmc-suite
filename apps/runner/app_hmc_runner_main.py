@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 """
-HMC-SUITE - NAMELIST APP
+HMC-SUITE - RUNNER APP
 
 __date__ = '20241202'
 __version__ = '1.0.0'
@@ -11,10 +11,10 @@ __author__ =
 __library__ = 'hmc-suite'
 
 General command line:
-python app_hmc_namelist_main.py -settings_file configuration.json -time "YYYY-MM-DD HH:MM"
+python app_hmc_runner_main.py -settings_file configuration.json -time "YYYY-MM-DD HH:MM"
 
 Version(s):
-20241202 (1.0.0) --> Beta release for hmc-suite package
+20241206 (1.0.0) --> Beta release for hmc-suite package
 """
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ from lib_utils_logging import set_logging_stream
 from lib_utils_time import select_time_information
 
 from lib_default_args import logger_name, logger_format, time_format_algorithm
-from lib_utils_settings import get_data_settings, update_data_settings
+from lib_utils_settings import get_data_settings
 
 from drv_hmc_variables import DrvVariables
 from drv_hmc_namelist import DrvNamelist
@@ -39,10 +39,10 @@ alg_logger = logging.getLogger(logger_name)
 # ----------------------------------------------------------------------------------------------------------------------
 # algorithm information
 project_name = 'hmc-suite'
-alg_name = 'Application for hmc namelist'
+alg_name = 'Application for hmc runner'
 alg_type = 'Package'
 alg_version = '1.0.0'
-alg_release = '2024-12-02'
+alg_release = '2024-12-16'
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -54,10 +54,7 @@ def main():
     # get file settings
     alg_file_settings, alg_time_settings = get_args()
     # read data settings
-    alg_data_settings, alg_env_settings = get_data_settings(alg_file_settings, key_reference='namelist')
-    # update data settings
-    alg_data_settings = update_data_settings(alg_data_settings, alg_env_settings)
-
+    alg_data_settings = get_data_settings(alg_file_settings, key_reference='namelist')
     # set logging
     set_logging_stream(
         logger_name=logger_name, logger_format=logger_format,
@@ -125,7 +122,7 @@ def main():
     alg_logger.info(' ')
     alg_logger.info(' ==> ' + alg_name + ' (Version: ' + alg_version + ' Release_Date: ' + alg_release + ')')
     alg_logger.info(' ==> TIME ELAPSED: ' + str(alg_time_elapsed) + ' seconds')
-    alg_logger.info(' ==> ... END')
+     alg_logger.info(' ==> ... END')
     alg_logger.info(' ==> Bye, Bye')
     alg_logger.info(' ============================================================================ ')
     # ------------------------------------------------------------------------------------------------------------------

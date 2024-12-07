@@ -11,10 +11,6 @@ Version:       '1.0.0'
 import os
 import json
 import logging
-
-from copy import deepcopy
-
-from lib_utils_system import swap_keys_values, create_dict_from_list, fill_tags2string, add_dict_key, flat_dict_key
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -34,44 +30,16 @@ def get_data_settings(file_name: str, key_reference: str = 'namelist'):
 
         data_settings = {**data_settings, **data_reference}
 
-    env_settings = data_settings['variables']['environment']
-
-    return data_settings, env_settings
+    return data_settings
 # ----------------------------------------------------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 # method to update data settings
-def update_data_settings(data_settings, env_settings):
+def update_data_settings(data_settings):
 
-    env_system_obj = dict(os.environ)
 
-    env_lut, env_format, env_tmpl = env_settings['lut'], env_settings['format'], env_settings['template']
-    user_system_obj = swap_keys_values(env_lut)
 
-    env_system_select = {}
-    for key_user, value_user in user_system_obj.items():
-        if key_user in list(env_system_obj.keys()):
-            env_system_select[value_user] = os.environ[key_user]
+    print()
 
-    # create template values and tags (to fill the variables)
-    template_keys = create_dict_from_list(list(env_system_select.keys()), 'string')
-    template_values = deepcopy(env_system_select)
-
-    data_flatten = flat_dict_key(data_settings, separator=":")
-
-    data_filled = {}
-    for data_key, tmp_value in data_flatten.items():
-        if isinstance(tmp_value, str):
-            data_value = fill_tags2string(tmp_value, template_keys, template_values)[0]
-        else:
-            data_value = tmp_value
-        data_filled[data_key] = data_value
-
-    data_update = {}
-    for tmp_key, data_value in data_filled.items():
-        list_key = tmp_key.split(':')
-        add_dict_key(data_update, list_key, data_value)
-
-    return data_update
 # ----------------------------------------------------------------------------------------------------------------------

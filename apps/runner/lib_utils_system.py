@@ -22,29 +22,6 @@ log_stream = logging.getLogger(logger_name)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# method to add dictionary key
-def add_dict_key(dictionary: dict, keys: list, value: (str, int, float)):
-    if len(keys) == 1:
-        dictionary[keys[0]] = value
-    else:
-        add_dict_key(dictionary.setdefault(keys[0], {}), keys[1:], value)
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-# method to flat dictionary keys
-def flat_dict_key(data: dict, parent_key: str = '', separator: str = ":", obj_dict: dict = {}):
-    for k, v in data.items():
-        key = parent_key + separator + k if parent_key else k
-        if isinstance(v, dict):
-            flat_dict_key(v, key, obj_dict=obj_dict)
-        else:
-            obj_dict[key] = v
-    return obj_dict
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-# ----------------------------------------------------------------------------------------------------------------------
 # method to check if two dictionaries have the same keys
 def check_keys_of_dict(d1, d2, name1='lut', name2='format'):
     if d1.keys() == d2.keys():

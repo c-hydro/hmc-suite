@@ -63,7 +63,7 @@ class DrvVariables:
 
         namelist_structure_default = self.select_namelist.get(
             namelist_type + ':' + namelist_version, self.error_variable_information)
-        self.namelist_type_default, self.namelist_structure_default = namelist_structure_default()
+        self.namelist_structure_default, self.namelist_type_default = namelist_structure_default()
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -170,18 +170,14 @@ class DrvVariables:
             # convert variable to string
             if var_format_alg == 'timestamp':
                 var_value_alg = var_value_alg.strftime(var_format_tmpl)
-            elif var_format_alg == 'string':
-                var_value_alg = str(var_value_alg)
-                var_value_alg = var_value_alg.strip()
-            elif var_format_alg == 'int':
-                var_value_alg = int(var_value_alg)
-            elif var_format_alg == 'float':
-                var_value_alg = float(var_value_alg)
             else:
-                log_stream.warning(' ===> Variable "' + var_name_alg +
-                                   '" format is not expected. Default format the copy of the variable')
-                var_value_alg = deepcopy(var_value_alg)
+                if isinstance(var_value_alg, str):
+                    pass
+                else:
+                    var_value_alg = str(var_value_alg)
 
+            # clean white spaces
+            var_value_alg = var_value_alg.strip()
             # store variable
             obj_env_select[var_name_alg] = var_value_alg
 
@@ -211,43 +207,12 @@ class DrvVariables:
         if 'sTimeStart' not in list(tmp_variables_hmc.keys()):
             tmp_variables_hmc['sTimeStart'] = obj_variable_information['time_now']
             log_stream.warning(' ===> Variable "sTimeStart" is not defined. Default value is "time_now"')
-        else:
-            if isinstance(tmp_variables_hmc['sTimeStart'], pd.Timestamp):
-                tmp_format = self.obj_variables_env_tmpl['time_now']
-                tmp_variables_hmc['sTimeStart'] = tmp_variables_hmc['sTimeStart'].strftime(tmp_format)
-            elif isinstance(tmp_variables_hmc['sTimeStart'], str):
-                tmp_format = self.obj_variables_env_tmpl['time_now']
-                tmp_variable = pd.Timestamp(tmp_variables_hmc['sTimeStart'])
-                tmp_variables_hmc['sTimeStart'] = tmp_variable.strftime(tmp_format)
-            else:
-                log_stream.error(' ===> Variable "sTimeStart" format is not expected')
-                raise RuntimeError('Variable format must be defined to correctly set the variables')
         if 'sTimeRestart' not in list(tmp_variables_hmc.keys()):
             tmp_variables_hmc['sTimeRestart'] = obj_variable_information['time_restart']
             log_stream.warning(' ===> Variable "sTimeRestart" is not defined. Default value is "time_restart"')
-        else:
-            if isinstance(tmp_variables_hmc['sTimeRestart'], pd.Timestamp):
-                tmp_format = self.obj_variables_env_tmpl['time_restart']
-                tmp_variables_hmc['sTimeRestart'] = tmp_variables_hmc['sTimeRestart'].strftime(tmp_format)
-            elif isinstance(tmp_variables_hmc['sTimeRestart'], str):
-                tmp_format = self.obj_variables_env_tmpl['time_restart']
-                tmp_variable = pd.Timestamp(tmp_variables_hmc['sTimeRestart'])
-                tmp_variables_hmc['sTimeRestart'] = tmp_variable.strftime(tmp_format)
-            else:
-                log_stream.error(' ===> Variable "sTimeRestart" format is not expected')
-                raise RuntimeError('Variable format must be defined to correctly set the variables')
         if 'iSimLength' not in list(tmp_variables_hmc.keys()):
-            tmp_variables_hmc['iSimLength'] = int(obj_variable_information['time_period'])
+            tmp_variables_hmc['iSimLength'] = obj_variable_information['time_period']
             log_stream.warning(' ===> Variable "iSimLength" is not defined. Default value is "time_period"')
-        else:
-            if isinstance(tmp_variables_hmc['iSimLength'], int):
-                pass
-            elif isinstance(tmp_variables_hmc['iSimLength'], str):
-                log_stream.warning(' ===> Variable "iSimLength" format is defined by string. Convert to integer')
-                tmp_variables_hmc['iSimLength'] = int(tmp_variables_hmc['iSimLength'])
-            else:
-                log_stream.error(' ===> Variable "iSimLength" format is not expected')
-                raise RuntimeError('Variable format must be defined to correctly set the variables')
         # info manage mandatory variables (end)
         log_stream.info(' ----> Update mandatory variables ... DONE')
 

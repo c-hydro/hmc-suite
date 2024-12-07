@@ -4,7 +4,7 @@
     "type": "hmc",
     "version": "3.2.0",
     "flags": {
-      "clean_data": true
+      "clean_data": false
     },
     "variables": {
       "environment": {
@@ -13,27 +13,21 @@
           "path_source" : "PATH_SRC",
           "path_destination" : "PATH_DST",
           "time_now" : "TIME_NOW",
-          "time_period" : "TIME_PERIOD",
-          "path_namelist": "PATH_NAMELIST",
-          "file_namelist": "FILE_NAMELIST"
+          "time_period" : "TIME_PERIOD"
         },
         "format": {
           "domain_name": "string",
           "path_source": "string",
           "path_destination": "string",
           "time_now": "timestamp",
-          "time_period": "int",
-          "path_namelist": "string",
-          "file_namelist": "string"
+          "time_period": "int"
         },
         "template": {
           "domain_name": "string",
           "path_source": "string",
           "path_destination": "string",
           "time_now": "%Y%m%d%H00",
-          "time_period": "int",
-          "path_namelist": "string",
-          "file_namelist": "string"
+          "time_period": "string"
         }
       },
       "hmc" : {
@@ -62,8 +56,8 @@
         "file_name": "hmc.template.info.v3.1.6.txt"
       },
       "destination": {
-        "folder_name": "{path_namelist}",
-        "file_name": "{file_namelist}"
+        "folder_name": "./data/namelist/",
+        "file_name": "marche.info.txt"
       }
     }
   },
