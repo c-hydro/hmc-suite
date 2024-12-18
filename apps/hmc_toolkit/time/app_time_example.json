@@ -1,0 +1,51 @@
+{
+  "__comment__" : "configuration file for the hmc namelist",
+  "info_time": {
+    "flags": {},
+    "variables": {
+      "environment": {
+        "lut": {
+          "domain_name": "DOMAIN_NAME",
+          "file_log" : "FILE_LOG",
+          "path_log" : "PATH_LOG",
+          "time_run" : "TIME_RUN",
+          "time_restart" : "TIME_RESTART",
+          "time_period" : "TIME_PERIOD"
+        },
+        "format": {
+          "domain_name": "string",
+          "file_log": "string",
+          "path_log": "string",
+          "time_run": "timestamp",
+          "time_restart" : "timestamp",
+          "time_period": "int"
+        },
+        "template": {
+          "domain_name": "string",
+          "file_log": "string",
+          "path_log": "string",
+          "time_run": "%Y%m%d%H00",
+          "time_restart": "%Y%m%d%H00",
+          "time_period": "int"
+        }
+      },
+      "hmc" : {
+        "__comment__": "time_period = int or {'observed': 10, 'forecast': 15, 'corrivation': 4}",
+        "time_run": "{time_run}",
+        "time_start": null,
+        "time_end": null,
+        "time_period": 23,
+        "time_rounding": "H",
+        "time_frequency": "H"
+      }
+    }
+  },
+  "log": {
+    "folder_name": "{path_log}",
+    "file_name": "{file_log}"
+  },
+  "tmp": {
+    "folder_name": "tmp/",
+    "file_name": null
+  }
+}

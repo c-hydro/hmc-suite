@@ -1,10 +1,47 @@
 {
-  "__comment__" : "configuration file for the hmc namelist",
+  "__comment__" : "configuration file for the hmc run",
+  "run_info": {
+    "run_analysis": {
+      "analysis_catchments": true,
+      "analysis_mp": true,
+      "analysis_cpu": 10
+    },
+    "run_type": {
+      "run_mp": true,
+      "run_cpu": 2,
+      "run_domain": "marche",
+      "run_name": "rfarm_ecmwf0100_history",
+      "run_mode": {
+        "ens_active": true,
+        "ens_variable": {
+          "var_name": null,
+          "var_min": 1,
+          "var_max": 2,
+          "var_step": 1
+        }
+      }
+    },
+    "run_location": {
+      "executable": {
+        "file_folder": "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_marche/run/{run_name}/{run_mode}/exec/",
+        "file_name": "HMC_Model_V3_{run_name}.x",
+        "arguments": "{run_domain}.info.txt",
+        "namelist": "{run_domain}.info.txt"
+      },
+      "library": {
+        "file_folder": "/home/fabio/fp_system_apps/hmc/",
+        "file_name": "HMC_Model_V3_$RUN.x",
+        "dependencies": ["/home/fabio/fp_system_libs_hmc/nc4/lib/"]
+      }
+    }
+  },
+  
+  
   "namelist": {
     "type": "hmc",
     "version": "3.2.0",
     "flags": {
-      "clean_data": true
+      "clean_data": false
     },
     "variables": {
       "environment": {
@@ -13,27 +50,21 @@
           "path_source" : "PATH_SRC",
           "path_destination" : "PATH_DST",
           "time_now" : "TIME_NOW",
-          "time_period" : "TIME_PERIOD",
-          "path_namelist": "PATH_NAMELIST",
-          "file_namelist": "FILE_NAMELIST"
+          "time_period" : "TIME_PERIOD"
         },
         "format": {
           "domain_name": "string",
           "path_source": "string",
           "path_destination": "string",
           "time_now": "timestamp",
-          "time_period": "int",
-          "path_namelist": "string",
-          "file_namelist": "string"
+          "time_period": "int"
         },
         "template": {
           "domain_name": "string",
           "path_source": "string",
           "path_destination": "string",
           "time_now": "%Y%m%d%H00",
-          "time_period": "int",
-          "path_namelist": "string",
-          "file_namelist": "string"
+          "time_period": "string"
         }
       },
       "hmc" : {
@@ -62,8 +93,8 @@
         "file_name": "hmc.template.info.v3.1.6.txt"
       },
       "destination": {
-        "folder_name": "{path_namelist}",
-        "file_name": "{file_namelist}"
+        "folder_name": "./data/namelist/",
+        "file_name": "marche.info.txt"
       }
     }
   },

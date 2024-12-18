@@ -11,7 +11,7 @@ __author__ =
 __library__ = 'hmc-suite'
 
 General command line:
-python app_hmc_namelist_main.py -settings_file configuration.json -time "YYYY-MM-DD HH:MM"
+python app_settings_main.py -settings_file configuration.json -time "YYYY-MM-DD HH:MM"
 
 Version(s):
 20241202 (1.0.0) --> Beta release for hmc-suite package
@@ -30,7 +30,7 @@ from lib_default_args import logger_name, logger_format, time_format_algorithm
 from lib_utils_settings import get_data_settings, update_data_settings
 
 from drv_hmc_variables import DrvVariables
-from drv_hmc_namelist import DrvNamelist
+from driver_hmc_namelist import DrvNamelist
 
 # set logger
 alg_logger = logging.getLogger(logger_name)

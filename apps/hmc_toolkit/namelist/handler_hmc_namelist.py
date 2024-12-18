@@ -12,8 +12,9 @@ Version:       '4.0.0'
 import re
 import pandas as pd
 
-from lib_utils_namelist import (filter_namelist_settings, read_namelist_group, parse_namelist_settings,
-                                write_namelist_group, select_namelist_type)
+from apps.generic_toolkit.lib_utils_namelist import (filter_namelist_settings,
+                                                     read_namelist_group, parse_namelist_settings,
+                                                     write_namelist_group, select_namelist_type)
 
 # ----------------------------------------------------------------------------------------------------------------------
 

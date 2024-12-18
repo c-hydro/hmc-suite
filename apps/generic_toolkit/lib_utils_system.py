@@ -10,14 +10,28 @@ Version:       '1.0.0'
 # libraries
 import logging
 import os
-
+import re
 import numpy as np
-from datetime import datetime
 
-from lib_default_args import logger_name
+from datetime import datetime
+from functools import reduce
+
+from apps.generic_toolkit.lib_default_args import logger_name, logger_arrow
 
 # logging
 log_stream = logging.getLogger(logger_name)
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# method to get dict value (using keys list)
+def get_dict_value(dictionary: dict, keys: list, default=None):
+
+    if not isinstance(keys, list):
+        keys = [keys]
+    dictionary = reduce(lambda d, key: d.get(key, default) if isinstance(d, dict) else default, keys, dictionary)
+
+    return dictionary
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -37,7 +51,10 @@ def flat_dict_key(data: dict, parent_key: str = '', separator: str = ":", obj_di
     for k, v in data.items():
         key = parent_key + separator + k if parent_key else k
         if isinstance(v, dict):
-            flat_dict_key(v, key, obj_dict=obj_dict)
+            if v:
+                flat_dict_key(v, key, obj_dict=obj_dict)
+            else:
+                obj_dict[key] = v
         else:
             obj_dict[key] = v
     return obj_dict
@@ -57,9 +74,9 @@ def check_keys_of_dict(d1, d2, name1='lut', name2='format'):
         two_not_one = [x for x in list2 if x not in list1]
 
         for key in one_not_two:
-            log_stream.error(' ===> Key "' + key + '" is not in the "' + name2 + '" dictionary')
+            log_stream.error(logger_arrow.error + 'Key "' + key + '" is not in the "' + name2 + '" dictionary')
         for key in two_not_one:
-            log_stream.error(' ===> Key "' + key + '" is not in the "' + name1 + '" dictionary')
+            log_stream.error(logger_arrow.error + 'Key "' + key + '" is not in the "' + name1 + '" dictionary')
         raise ValueError('The two dictionaries have different keys. Add the keys to the dictionaries')
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -74,17 +91,26 @@ def swap_keys_values(d):
 
 # ----------------------------------------------------------------------------------------------------------------------
 # method to create a dictionary from a list
-def create_dict_from_list(list_obj, value_list=None, value_default='string'):
+def filter_dict_by_keys(dict_obj_in: dict, key_list: list = None,
+                        default_value: (int, float, str, None) = None) -> dict:
 
-    if value_list is None:
-        value_list = [value_default] * list_obj.__len__()
-    if not isinstance(value_list, list):
-        value_list = [value_list] * list_obj.__len__()
+    if key_list is not None:
+        dict_obj_out = {}
+        for key_step in key_list:
+            if key_step in list(dict_obj_in.keys()):
 
-    dict_obj = {}
-    for key, value in zip(list_obj, value_list):
-        dict_obj[key] = value
-    return dict_obj
+                tmp_value = dict_obj_in[key_step]
+                if isinstance(tmp_value, str):
+                    to_remove = re.compile(r"[']")
+                    tmp_value = to_remove.sub('', tmp_value)
+
+                dict_obj_out[key_step] = tmp_value
+            else:
+                log_stream.warning(logger_arrow.warning + 'Variable "' + key_step + '" is not in the dictionary')
+                dict_obj_out[key_step] = default_value
+    else:
+        dict_obj_out = dict_obj_in
+    return dict_obj_out
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -159,7 +185,7 @@ def fill_tags2string(string_raw, tags_format=None, tags_filling=None, tags_templ
                             if isinstance(value_filling, datetime):
                                 tag_dict_value = value_filling.strftime(tag_dict_type)
                             elif isinstance(value_filling, np.datetime64):
-                                log_stream.error(' ===> DateTime64 format is not expected')
+                                log_stream.error(logger_arrow.error + 'DateTime64 format is not expected')
                                 raise ValueError('DateTime64 is non supported by the method. Use datetime instead')
                             elif isinstance(value_filling, (float, int)):
                                 tag_dict_value = tag_dict_key.format(value_filling)
@@ -176,7 +202,8 @@ def fill_tags2string(string_raw, tags_format=None, tags_filling=None, tags_templ
                                 string_list_value.append(tag_dict_value)
                                 string_list_type.append(tag_dict_type)
                             else:
-                                log_stream.warning(' ===> The key "' + tag_dict_key + '" for "' + string_filled_step +
+                                log_stream.warning(logger_arrow.warning + 'The key "' + tag_dict_key + '" for "' +
+                                                   string_filled_step +
                                                    '" is not correctly filled; the value is set to NoneType')
 
             string_filled_def.append(string_filled_step)

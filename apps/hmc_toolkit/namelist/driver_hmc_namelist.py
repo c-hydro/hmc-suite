@@ -34,7 +34,7 @@ class DrvNamelist:
 
     # ------------------------------------------------------------------------------------------------------------------
     # global variable(s)
-    class_type = 'driver_namelist'
+    class_type = 'namelist_driver'
     select_namelist = {
         'hmc:3.1.4': select_namelist_type,
         'hmc:3.1.5': select_namelist_type,
