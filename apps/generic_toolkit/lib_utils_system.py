@@ -47,7 +47,8 @@ def add_dict_key(dictionary: dict, keys: list, value: (str, int, float)):
 
 # ----------------------------------------------------------------------------------------------------------------------
 # method to flat dictionary keys
-def flat_dict_key(data: dict, parent_key: str = '', separator: str = ":", obj_dict: dict = {}):
+def flat_dict_key(data: dict, parent_key: str = '',
+                  separator: str = ":", obj_dict: dict = {}):
     for k, v in data.items():
         key = parent_key + separator + k if parent_key else k
         if isinstance(v, dict):
@@ -106,7 +107,9 @@ def filter_dict_by_keys(dict_obj_in: dict, key_list: list = None,
 
                 dict_obj_out[key_step] = tmp_value
             else:
-                log_stream.warning(logger_arrow.warning + 'Variable "' + key_step + '" is not in the dictionary')
+                log_stream.warning(
+                    logger_arrow.warning + 'Variable "' + key_step +
+                    '" is not in the dictionary. Variable is set to default value "' + str(default_value) + '"')
                 dict_obj_out[key_step] = default_value
     else:
         dict_obj_out = dict_obj_in
@@ -202,7 +205,7 @@ def fill_tags2string(string_raw, tags_format=None, tags_filling=None, tags_templ
                                 string_list_value.append(tag_dict_value)
                                 string_list_type.append(tag_dict_type)
                             else:
-                                log_stream.warning(logger_arrow.warning + 'The key "' + tag_dict_key + '" for "' +
+                                log_stream.warning(logger_arrow.warning + 'Variable "' + tag_dict_key + '" for "' +
                                                    string_filled_step +
                                                    '" is not correctly filled; the value is set to NoneType')
 

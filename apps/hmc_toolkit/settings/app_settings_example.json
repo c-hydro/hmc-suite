@@ -1,6 +1,6 @@
 {
-  "__comment__" : "configuration file for the hmc namelist",
-  "info_time": {
+  "__comment__" : "configuration file for the hmc settings",
+  "info_settings": {
     "flags": {},
     "variables": {
       "environment": {
@@ -41,7 +41,7 @@
     }
   },
   "log": {
-    "folder_name": "{path_log}",
+    "folder_name": "/home/fabio/log/",
     "file_name": "{file_log}"
   },
   "tmp": {

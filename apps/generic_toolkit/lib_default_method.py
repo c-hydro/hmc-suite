@@ -10,8 +10,7 @@ Version:       '1.0.0'
 # libraries
 import warnings
 import pandas as pd
-
-from apps.generic_toolkit.lib_utils_system import flat_dict_key
+from tabulate import tabulate
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -36,44 +35,70 @@ class DataCollector(object):
     def collect(self, dict_variable: dict = None):
 
         for key, value in dict_variable.items():
-            self.insert_data(info=value, tag=key)
+            self.insert(info=value, tag=key)
 
     def retrieve(self):
 
         collector_data = {}
         for key in list(self.collector_data.keys()):
-            data = self.get_data(tag=key)
+            data = self.get(tag=key)
             collector_data[key] = data
         return collector_data
 
-    def get_data(self, tag: str = None) -> (float, int, list, dict, pd.Timestamp):
+    def get(self, tag: str = None) -> (float, int, list, dict, pd.Timestamp):
         if tag is not None:
             if tag in list(self.collector_data.keys()):
                 data = self.collector_data[tag]
             else:
-                warnings.warn('Tag is not defined. Data will be not retrieved from a dictionary')
+                warnings.warn('Tag "' + str(tag) + '" is not defined. Data will be not retrieved from a dictionary')
                 data = None
         else:
-            warnings.warn('Tag is not defined. Data will be not retrieved from a dictionary')
+            warnings.warn('Tag "' + str(tag) + '" is not defined. Data will be not retrieved from a dictionary')
             data = None
         return data
 
-    def insert_data(self, info: (float, int, list, dict, pd.Timestamp) = None, tag: str = None) -> None:
+    def insert(self, info: (float, int, list, dict, pd.Timestamp) = None, tag: str = None) -> None:
         if tag not in list(self.collector_data.keys()):
             if tag is not None:
                 self.collector_data[tag] = info
             else:
-                warnings.warn('Tag is not defined. Data will be not stored in a dictionary')
+                warnings.warn('Tag "' + str(tag) + '" is not defined. Data will be not stored in a dictionary')
         else:
-            warnings.warn('Tag is already defined. Data will be not stored in a dictionary')
+            warnings.warn('Tag "' + str(tag) + '" is already defined. Data will be not stored in a dictionary')
 
-    def view_data(self):
+    def view(self, table_variable='collectors_variables', table_values='values', table_format='psql'):
         """
         View the data.
         """
-        collector_flatten = flat_dict_key(self.collector_data, separator=":")
-        collector_dframe = pd.DataFrame.from_dict(collector_flatten, orient='index', columns=['value'])
-        print(collector_dframe)
+        collector_flatten = self.__flat_dict_key(self.collector_data, separator=":", obj_dict={})
+        collector_dframe = pd.DataFrame.from_dict(collector_flatten,
+                                                  orient='index', columns=['values'])
+        collector_dframe = collector_dframe.rename(index={'index': 'collectors_variables'})
+
+        collector_table = tabulate(
+            collector_dframe,
+            headers=[table_variable, table_values],
+            floatfmt=".5f",
+            showindex=True,
+            tablefmt=table_format,
+            missingval='N/A'
+        )
+
+        print(collector_table)
+
+    def __flat_dict_key(self, data: dict, parent_key: str = '', separator: str = ":", obj_dict: dict = {}):
+        for k, v in data.items():
+            key = parent_key + separator + k if parent_key else k
+            if isinstance(v, dict):
+                if v:
+                    self.__flat_dict_key(v, key, obj_dict=obj_dict)
+                else:
+                    obj_dict[key] = v
+            else:
+                obj_dict[key] = v
+        return obj_dict
+    # ----------------------------------------------------------------------------------------------------------------------
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 

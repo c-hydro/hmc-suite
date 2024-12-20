@@ -1,9 +1,8 @@
 #!/usr/bin/python3
-
 """
-HMC-SUITE - TIME APP
+HMC-SUITE - SETTINGS APP
 
-__date__ = '20241202'
+__date__ = '20241209'
 __version__ = '1.0.0'
 __author__ =
     'Fabio Delogu (fabio.delogu@cimafoundation.org),
@@ -25,10 +24,10 @@ import os.path
 from apps.generic_toolkit.lib_utils_args import get_args
 from apps.generic_toolkit.lib_utils_logging import set_logging_stream
 
-from apps.generic_toolkit.lib_default_args import logger_name, logger_format, logger_arrow
+from apps.generic_toolkit.lib_default_args import logger_name, logger_format
 from apps.generic_toolkit.lib_default_args import collector_data
 
-from apps.hmc_toolkit.time.driver_hmc_settings import DrvSettings
+from apps.hmc_toolkit.settings.driver_hmc_settings import DrvSettings
 
 # set logger
 logger_stream = logging.getLogger(logger_name)
@@ -37,7 +36,7 @@ logger_stream = logging.getLogger(logger_name)
 # ----------------------------------------------------------------------------------------------------------------------
 # algorithm information
 project_name = 'hmc-suite'
-alg_name = 'Application for model time settings'
+alg_name = 'Application for hmc settings'
 alg_type = 'Package'
 alg_version = '1.0.0'
 alg_release = '2024-12-09'
@@ -54,16 +53,16 @@ def main():
 
     # method to initialize settings class
     driver_hmc_settings = DrvSettings(file_name=alg_file_settings, time=alg_time_settings,
-                                      file_key='info_time')
+                                      file_key='info_settings')
     # method to configure variable settings
-    alg_data_settings = driver_hmc_settings.configure_variable_settings()
+    alg_data_settings, alg_data_variables = driver_hmc_settings.configure_variable_settings()
     # method to organize variable settings
     driver_hmc_settings.organize_variable_settings(alg_data_settings)
     # method to view variable settings
     driver_hmc_settings.view_variable_settings()
 
     # collector data
-    collector_data.view_data()
+    collector_data.view()
 
     # set logging stream
     set_logging_stream(

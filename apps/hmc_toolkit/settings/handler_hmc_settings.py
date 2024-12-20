@@ -13,6 +13,7 @@ import logging
 import os
 import pandas as pd
 
+from tabulate import tabulate
 from copy import deepcopy
 
 from apps.generic_toolkit.lib_utils_settings import get_data_settings
@@ -36,6 +37,7 @@ log_stream = logging.getLogger(logger_name)
 class SettingsHandler:
 
     class_type = 'settings_handler'
+    excluded_keys = ['__comment__', '_comment_', '__comment', '_comment']
 
     # initialize class
     def __init__(self, settings_obj: dict = None, system_obj: dict = None,
@@ -99,7 +101,7 @@ class SettingsHandler:
 
         if (lut_by_user is not None) and (template_by_user is not None):
 
-            settings_flatten = flat_dict_key(self.settings_obj, separator=":")
+            settings_flatten = flat_dict_key(self.settings_obj, separator=":", obj_dict={})
 
             settings_filled = {}
             for data_key, tmp_value in settings_flatten.items():
@@ -112,7 +114,11 @@ class SettingsHandler:
             settings_update = {}
             for tmp_key, data_value in settings_filled.items():
                 list_key = tmp_key.split(':')
-                add_dict_key(settings_update, list_key, data_value)
+                if list_key[-1] not in self.excluded_keys:
+                    add_dict_key(settings_update, list_key, data_value)
+                else:
+                    log_stream.warning(logger_arrow.warning + 'Settings "' + str(list_key) +
+                                       '" removed from settings object. Excluded key found.')
 
             self.settings_obj = settings_update
 
@@ -120,7 +126,7 @@ class SettingsHandler:
 
     def select_variable_system(self, lut_by_user: dict = None,
                                format_by_user: dict = None, template_by_user: dict = None,
-                               lut_swap: bool = False):
+                               lut_swap: bool = False, default_value: {int, float, bool } = None):
 
         lut_by_system = deepcopy(lut_by_user)
         if lut_by_user is not None:
@@ -161,8 +167,8 @@ class SettingsHandler:
                             elif lut_format == 'timestamp':
                                 value_def = pd.Timestamp(value_tmp).strftime(lut_tmpl)
                             else:
-                                logger_name.error(logger_arrow.error + 'Format "' + str(lut_format) +
-                                                  '" not expected.')
+                                log_stream.error(logger_arrow.error + 'Format "' + str(lut_format) +
+                                                 '" not expected.')
                                 raise NotImplementedError('Case not implemented yet.')
                         else:
                             log_stream.warning(logger_arrow.warning + 'Variable "'
@@ -170,8 +176,9 @@ class SettingsHandler:
                             value_def = value_tmp
                     else:
                         log_stream.warning(logger_arrow.warning + 'Variable "'
-                                           + lut_tag_user + '" value is defined by NoneType.')
-                        value_def = None
+                                           + lut_tag_user + '" value is defined by default value "' +
+                                           str(default_value) + '"')
+                        value_def = default_value
 
                     lut_by_system[lut_tag_user] = value_def
 
@@ -200,20 +207,28 @@ class SettingsHandler:
         raise NotImplementedError
 
     # method to view data
-    def view(self) -> None:
+    def view(self, table_data: dict = None,
+             table_variable='variables', table_values='values', table_format='psql') -> None:
         """
         View the time data.
         """
 
-        settings_dict = flat_dict_key(data=self.settings_obj, separator=":", obj_dict={})
-        settings_dframe = pd.DataFrame.from_dict(settings_dict, orient='index', columns=['value'])
-        print('Settings Variables')
-        print(settings_dframe)
+        if table_data is None:
+            table_data = self.settings_obj
 
-        system_dict = flat_dict_key(data=self.system_obj, separator=":", obj_dict={})
-        system_dframe = pd.DataFrame.from_dict(system_dict, orient='index', columns=['value'])
-        print('System Variables')
-        print(system_dframe)
+        table_dict = flat_dict_key(data=table_data, separator=":", obj_dict={})
+        table_dframe = pd.DataFrame.from_dict(table_dict, orient='index', columns=['value'])
+
+        table_obj = tabulate(
+            table_dframe,
+            headers=[table_variable, table_values],
+            floatfmt=".5f",
+            showindex=True,
+            tablefmt=table_format,
+            missingval='N/A'
+        )
+
+        print(table_obj)
 
     # method to check data
     def check(self):
