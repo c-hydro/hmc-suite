@@ -108,7 +108,7 @@ def filter_dict_by_keys(dict_obj_in: dict, key_list: list = None,
                 dict_obj_out[key_step] = tmp_value
             else:
                 log_stream.warning(
-                    logger_arrow.warning + 'Variable "' + key_step +
+                    logger_arrow.warning + 'Variable "' + str(key_step) +
                     '" is not in the dictionary. Variable is set to default value "' + str(default_value) + '"')
                 dict_obj_out[key_step] = default_value
     else:
@@ -126,13 +126,25 @@ def convert_list2string(list_data: list, list_delimiter: str = ',') -> str:
 
 
 # ----------------------------------------------------------------------------------------------------------------------
+# method to replace string with multiple values
+def replace_string(string_text: str, string_replace: dict) -> str:
+
+    # use these three lines to do the replacement
+    obj_replace = dict((re.escape(k), v) for k, v in string_replace.items())
+    obj_pattern = re.compile("|".join(obj_replace.keys()))
+    string_text = obj_pattern.sub(lambda m: obj_replace[re.escape(m.group(0))], string_text)
+
+    return string_text
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 # method to add format(s) string (path or filename)
 def fill_tags2string(string_raw, tags_format=None, tags_filling=None, tags_template='[TMPL_TAG_{:}]'):
 
     apply_tags = False
     if string_raw is not None:
         for tag in list(tags_format.keys()):
-
             if tag in string_raw:
                 apply_tags = True
                 break
@@ -190,8 +202,10 @@ def fill_tags2string(string_raw, tags_format=None, tags_filling=None, tags_templ
                             elif isinstance(value_filling, np.datetime64):
                                 log_stream.error(logger_arrow.error + 'DateTime64 format is not expected')
                                 raise ValueError('DateTime64 is non supported by the method. Use datetime instead')
-                            elif isinstance(value_filling, (float, int)):
-                                tag_dict_value = tag_dict_key.format(value_filling)
+                            elif isinstance(value_filling, float):
+                                tag_dict_value = '{:}'.format(value_filling)
+                            elif isinstance(value_filling, int):
+                                tag_dict_value = '{:}'.format(value_filling)
                             else:
                                 tag_dict_value = value_filling
 

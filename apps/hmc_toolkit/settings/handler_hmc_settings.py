@@ -18,10 +18,10 @@ from copy import deepcopy
 
 from apps.generic_toolkit.lib_utils_settings import get_data_settings
 
-from apps.generic_toolkit.lib_utils_system import (swap_keys_values, filter_dict_by_keys,
+from apps.generic_toolkit.lib_utils_system import (swap_keys_values, filter_dict_by_keys, replace_string,
                                                    fill_tags2string, add_dict_key, flat_dict_key)
 
-from apps.generic_toolkit.lib_utils_dict import get_dict_value
+from apps.generic_toolkit.lib_utils_dict import get_dict_value_by_key, get_dict_value
 
 from apps.generic_toolkit.lib_default_args import time_format_datasets, time_format_algorithm
 from apps.generic_toolkit.lib_default_args import logger_name, logger_arrow
@@ -80,10 +80,12 @@ class SettingsHandler:
 
         if tag_by_user is not None:
             if tag_by_user not in list(self.variables_obj.keys()):
-                tmp_obj = get_dict_value(self.settings_obj, tag_by_user)
-                tmp_variables = {}
-                for tmp_step in tmp_obj:
-                    tmp_variables[tmp_step[0]] = tmp_step[1]
+
+                tmp_variables, tmp_key = get_dict_value_by_key(self.settings_obj, tag_by_user)
+                #tmp_obj = get_dict_value(self.settings_obj, tag_by_user)
+                àtmp_variables2 = {}
+                #for tmp_step in tmp_obj:
+                #    tmp_variables2[tmp_step[0]] = tmp_step[1]
                 self.variables_obj[tag_by_user] = tmp_variables
             else:
                 log_stream.error(logger_arrow.error + 'Tag "' + tag_by_user + '" already exists in variables object.')
@@ -106,9 +108,39 @@ class SettingsHandler:
             settings_filled = {}
             for data_key, tmp_value in settings_flatten.items():
                 if isinstance(tmp_value, str):
+
                     data_value = fill_tags2string(tmp_value, template_by_user, lut_by_user)[0]
+
+                    tmp_tag = replace_string(tmp_value, string_replace={'{':'', '}': ''})
+                    if tmp_tag in list(template_by_user.keys()):
+                        tmp_format = template_by_user[tmp_tag]
+                        if tmp_format == 'int':
+                            if data_value.isnumeric():
+                                data_value = int(data_value)
+                        if tmp_format == 'float':
+                            if data_value.isnumeric():
+                                data_value = float(data_value)
                 else:
                     data_value = tmp_value
+
+                tmp_key = data_key.split(':')[-1]
+
+                if tmp_key in list(template_by_user.keys()):
+                    data_format = template_by_user[tmp_key]
+                    if data_value is not None:
+                        if data_format == 'int':
+                            if isinstance(data_value, str):
+                                if data_value.isnumeric():
+                                    data_value = int(data_value)
+                            if isinstance(data_value, (float, int)):
+                                data_value = int(data_value)
+                        if data_format == 'float':
+                            if isinstance(data_value, str):
+                                if data_value.isnumeric():
+                                    data_value = float(data_value)
+                            if isinstance(data_value, (float, int)):
+                                data_value = float(data_value)
+
                 settings_filled[data_key] = data_value
 
             settings_update = {}
@@ -187,7 +219,7 @@ class SettingsHandler:
     # method to freeze data
     def freeze(self):
         """
-        Error time data.
+        Freeze the data.
         """
         raise NotImplementedError
 
@@ -201,7 +233,7 @@ class SettingsHandler:
     # method to write data
     def write(self):
         """
-        Write the time data.
+        Write the data.
         """
 
         raise NotImplementedError
@@ -210,7 +242,7 @@ class SettingsHandler:
     def view(self, table_data: dict = None,
              table_variable='variables', table_values='values', table_format='psql') -> None:
         """
-        View the time data.
+        View the data.
         """
 
         if table_data is None:

@@ -66,7 +66,8 @@ class DataCollector(object):
         else:
             warnings.warn('Tag "' + str(tag) + '" is already defined. Data will be not stored in a dictionary')
 
-    def view(self, table_variable='collectors_variables', table_values='values', table_format='psql'):
+    def view(self, table_variable='collectors_variables', table_values='values', table_format='psql',
+             table_print=True):
         """
         View the data.
         """
@@ -84,7 +85,8 @@ class DataCollector(object):
             missingval='N/A'
         )
 
-        print(collector_table)
+        if table_print:
+            print(collector_table)
 
     def __flat_dict_key(self, data: dict, parent_key: str = '', separator: str = ":", obj_dict: dict = {}):
         for k, v in data.items():
